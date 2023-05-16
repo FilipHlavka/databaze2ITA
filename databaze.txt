@@ -1,0 +1,723 @@
+DB- databáze
+DBMS- database management system, aplikace pro DB
+DBS- database system
+DBS = DBMS + DB
+RDBMS- relační DBMS (MariaDB, MySQL)
+OODBMS- objektově orientované DBMS (Versent?,Cashé?)
+ORDBMS- objektově relační DBMS (PostreSQL?,Oneele?)
+NoSQL- not only SQL (MongoDB,DB4o?)
+E- Entita, objekt reálného světa, který je schopen samostatné existence 
+	př. osoba Vratislav Medřický, auto SPZ 1UK 77776, faktura č.1234567, učebna 127
+vlastnosti E: jméno -----> atributy (A)
+	      příjmení ----> A
+	      výška
+	      šířka
+	      bydliště-----> A
+	      atd.
+
+žáci-
+    A      A        A
+ -----------------------
+|Jméno|Příjmení|Bydliště|
+ -----------------------
+|     |        |        | <-- záznam
+ -----------------------
+|     |        |        | 
+ -----------------------
+
+              / \
+třída entitit  |
+
+
+R- relace, vztah mezi E
+
+žáci-			   --|
+ -----------------------     |
+|Jméno|Příjmení|Bydliště|    |     
+ -----------------------     |
+|     |        |        |    | --- relace
+ -----------------------     |
+|     |        |        |    |
+ -----------------------     |
+                             |
+třídy-                     --|
+ -----------------------
+|     |        |        |
+ -----------------------
+|     |        |        | 
+ -----------------------
+|     |        |        | 
+ -----------------------
+
+				Jazyk SQL
+			       -----------
+
+SQL - Structurate Querry Language, neprocedurálni a dotazovací
+
+ avg(cena)
+- provedurální nadstavby SQL  PL/SQL
+			      PS/SQL
+			      T-SQL
+
+		ZÁKLADNÍ PRAVIDLO SQL
+              -------------------------
+
+1)mezera je oddělovač příkazů
+2)objekty databáze pojmenovávat bez diakritiky
+3)každý příkaz končí středníkem ;
+
+   standardy SQL: SQL 85, SQL 89, SGL 92, SQL 99, SQL 2003, SQL 2006, SQL 2008, SQL 2011, SQL 2016
+
+                                    SQL
+				----------
+DDL - Data Definition Language
+(JDD - jazyk pro definicy dat)
+pracují s objekty DBMS
+ create,drop,alter
+-------------------------------------------
+DML - Data manipulation language
+(jmd - jazyk pro manipulaci s daty)
+pracují s daty v DB⁬
+	insert, update, delete
+-------------------------------------------
+DQL - Data querry language
+získávání dat z DB
+select,show
+-------------------------------------------
+DCL - data control language
+řeší víceuživatelský přístup k DBMS
+grant, revoke
+-------------------------------------------
+TCL - transact control language
+řeší transakce
+start transaction, commit, rollback
+
+
+
+	Unicode
+------------------
+ UTF8   UTF7 = ASCII
+
+ UTF16 -microsoft       - číslo kolik bitů má znak
+
+ UTF32
+ 
+www.unicode.com
+
+endianita
+---------
+
+
+UTF16, 32
+
+ rozhoduje jestly jako první se zapíše větší nebo menší byte
+UTF16-BE
+UTF16-LE
+
+            datové typy          hledání info o MariaDB
+        -------------------
+
+1) logické 
+2) číselné
+3) řetězcové
+4) datum a čas
+5) speciální
+
+
+          číselné
+        ____________
+
+- tinyint - 1 Byte    2 na 8       -2 na 7 až 2 na 7 -1   
+- smallint - 2B       2 na 16      -2 na 15 až 2 na 15 -1
+- mediumint - 3B      2 na 24
+- int - 4B            2 na 32
+- bigint- 8B          2 na 64
+- bit- 1b
+
+		/ \
+                 |
+		celočíselné
+
+- decimal(m,d)    157,39... decimal(5,2) <-- desetiný
+
+- float    ---- 3.589 * 10 na 3
+- double
+
+        / \
+         |
+     s plovoucí 
+
+		Textové/řetězcové
+            _________________________
+
+
+      starší 
+     --------       
+
+- char(p)   p <= 256   <--rychlé vyhledávání
+- varchar(p)  p <= 65 536
+
+   char(10) "Ahoj     "
+	    "Ondra Novo"tný
+  
+   varchar(10) "Ahoj"
+	       "Ondra Novo"tný
+
+      novější
+    ----------
+
+- tinytext
+- text
+- mediumtext
+- longtext
+
+            Datum a čas
+     __________________________
+
+   datum a čas v MariaDB:
+        
+      YYYY-MM-DD
+
+- date   " 2022-09-23"
+- time	 "09 : 20 : 37 "
+- datetime   "2022-09-23 09 : 20 : 37"
+- year (p)  "2022" nebo "22"
+- timestamp(p) "20220923092037"
+
+                  
+              něco
+	_______________________
+
+
+- enum výčtový typ
+- set  množinový typ
+
+  enum('muž','žena','ostatní')
+  set('sci-fi','horror','pohádka')
+
+								TEST DATOVÉ TYPY
+
+
+
+
+    IO -  INTEGRITNÍ OMEZENÍ
+ ____________________________________
+
+
+ - dodatečné omezení hodnot        	CREATE TABLE Vyrobky(
+							nazev datový_typ IO, 
+                                                        nazev datový_typ IO
+                                                            );
+
+
+CREAT TABLE Studenti(
+    id_stu  INT PRIMARY KEY AUTO_INCREMENT
+    jmeno   CHAR(24) NOT NULL
+    datum_naroz DATE NOT NULL
+    prijmeni CHAR(30) NOT NULL
+    adresa VARCHAR(50) NOT NULL
+    rok_nastupu  YEAR
+    telefon  INT(9) ZEROFILL
+    mail VARCHAR(40) NOT NULL
+);
+
+
+1) IO primary key  (PK)
+    - unikátní hodnoty
+    - neobsahuje NULL (vždy nutné něco vložit)
+    - v 1 tabulce nejvíše 1 klíč
+
+2) foreign key  (FK)
+    - duplicitní hodnoty
+    - může obsahovat NULL (nemusíme zadat)
+    - počet je od 0 až do n
+
+3) not null (NN)
+    - vždy nutné zadat hodnotu
+
+4) null (nezapissuje)
+    - když nevím, tak nenapíšu
+
+5) auto_increment
+    - automatické číslování 1,2,3,4,5,6,...
+
+6) ZEROFILL (cifer)
+    - neignoruje nuli na začátku čísla
+
+PŘ.: CREATE TABLE Vyrobky(
+        id_vyr INT PK A_I,
+        nazev CHAR(20) NN UQ,
+        cena DECIMAL (8,2) NN CH(cena>=0) DEFAULT 0,
+        popis VARCHAR(100),
+    |-----<-druh INT,
+    |    FK(druh) REFERENCES druhy_vyrobku(id_dru)
+    |    );
+    |
+    |
+    |    CREATE TABLE druhy_vyrobku(
+    |----|-    id_dru INT PK A_I,
+        nazev CHAR(20) NN
+        );
+Zápis: 7)UNIQUE (UQ)
+  ->hodnoty ve sloupci musí být unikátní
+
+8)CHECK (logická podmínka)
+  ->hodnoty ve sloupci musí splňovat logickou podmínku
+
+9)DEFAULT hodnota
+  ->předefinovaná  hodnota sloupce
+  ->vloží se do sloupce pokud hodnotu nezadáme
+10)UNSIGNED
+  ->upraví rozsah hodnot od 0 do ?
+
+
+     Básnička databáze
+
+select  -sloupce
+from    -tabulky
+where   -omezení zobrazení řádků
+group by -seskupení dat
+having   - omezení zobrazených řádků
+order by  - řazení                       -ASCendent vzestupně
+					 - DESCendent sestupně
+limit     - počet zobrazených řádků
+
+
+
+		SELECT 2+3;
+
+		SELECT Vyrobky.nazev,Vyrobky.cena,Vyrobky.cena*2 AS násobek,Round(Vyrobky.cena *1.21,2)AS 'Cena s dph'
+		FROM Vyrobky
+  		WHERE Vyrobky.cena < 150
+		ORDER BY Vyrobky.nazev ASC
+		LIMIT 10;
+
+		SELECT v.nazev,v.cena,v.cena*2 AS násobek,Round(v.cena *1.21,2)AS 'Cena s dph'
+		FROM Vyrobky AS v
+  		WHERE v.cena < 150
+		ORDER BY v.nazev ASC
+		LIMIT 10;
+SELECT 8/3, ABS(-13), PI(),SIN(PI()/4), ROUND(COS(PI()/4),3),floor(-PI()),ceil(-PI()),POW(2,5),SQRT(625);
+
+SELECT POW(2,5),SQRT(625), exp(1), exp(-2),exp(0),LN(1), log10(100),log2(64),log(3,27);
+
+select 34 div 10, 34 Mod 10, bin(12), oct(25), hex(42), rand(),sign(-5), 34/7, 34%7;
+
+select v.nazev, v.cena, round (v.cena*1.07,2) as 'zv cena', round(v.cena +(v.cena/100)*7 ,2) as 'srovnani' 
+from vyrobky as v
+where v.cena > 150;
+
+select  concat (z.prijmeni , ' ', z.jmeno, ', ', z.adresa, ', tel. :' , z.telefon) as 'cele jm 2'
+from zamestnanci as z
+
+SELECT z.jmeno, char_length(z.jmeno), floor(bit_length(z.jmeno)/8)
+FROM zakaznici as z;
+
+SELECT max(length(z.jmeno)), min(length(z.jmeno))
+FROM zakaznici as z;
+
+SELECT z.prijmeni, INSERT(z.prijmeni,3,0,'qqqq'), substring(z.prijmeni,3,2), left(z.prijmeni,3), right(z.prijmeni,3)
+FROM zakaznici as z;
+
+SELECT z.prijmeni, LPAD(z.prijmeni,8,'¤'), RPAD(z.prijmeni,10,'___')
+FROM zakaznici as z;
+
+SELECT z.prijmeni, REPEAT(z.prijmeni,2), Reverse(z.prijmeni), REPLACE(z.prijmeni,'a','¤¤')
+FROM zakaznici as z;
+
+SELECT '    Jana   ', ltrim('    Jana   '), rtrim('    Jana   '), trim('    Jana   ')
+FROM zakaznici as z;
+
+SELECT z.prijmeni, z.jmeno, strcmp(z.jmeno,z.prijmeni),strcmp(z.jmeno,z.jmeno)
+FROM zakaznici as z;
+
+SELECT o.cislo, o.dat_pri, CURRENT_time(),curtime(), curdate()+0, curdate()+35
+FROM objednavky as o;
+
+SELECT o.cislo, o.dat_pri, Now(),now(), now()+0, now()+35
+FROM objednavky as o;
+
+SELECT o.cislo, o.dat_pri, CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()+0, CURRENT_TIMESTAMP()+35
+FROM objednavky as o;
+
+SELECT o.cislo, o.dat_pri, date(o.dat_pri), time(o.dat_pri), year(o.dat_pri),month(o.dat_pri),day(dat_pri), hour(o.dat_pri),minute(o.dat_pri),second(o.dat_pri) FROM objednavky as o;
+
+SELECT  o.dat_pri, date_add(o.dat_pri,INTERVAL 1 year), date_sub(o.dat_pri, INTERVAL 1 year),date_add(o.dat_pri,INTERVAL -1 year)
+FROM objednavky as o;
+
+SELECT  o.dat_pri, addtime(o.dat_pri,'01:00:00')
+FROM objednavky as o;
+
+SELECT  o.dat_pri, NOW(), datediff(now(),o.dat_pri), timestampdiff(second,now(),o.dat_pri), timediff(now(),o.dat_pri)
+FROM objednavky as o;
+
+SELECT  o.dat_pri, date_format(o.dat_pri,'%d.%m.%Y')
+FROM objednavky as o;
+
+SELECT Convert('123.4567',int),Convert('123.45675115432152715',double),Convert('123.4567',float),Convert('1e3.4',float);
+
+SELECT Convert('20221125101356',time) <- konvertuje cokoli  
+from objednavky as o;
+
+SELECT Convert('příliš žluťoučký kůň úpěl ďábelské ódy'USING latin2) nebo utf 
+from objednavky as o;
+
+SELECT	o.cislo, o.dat_pri,
+	DAte_Format(o.dat_pri, '%d.%m.%Y - %w') as 'datum přijetí',
+    DAte_Format(o.dat_pri, '%D.%M.%y-%V') as 'datum přijetí',
+    date_format(o.dat_pri,'%H:%i:%s,%f'),
+     date_format(o.dat_pri,'%r nebo %T')
+FROM objednavky AS o;
+
+
+null = null null
+null<=>null ano
+
+
+operátor is null/is not null
+
+funkce isnull(exp)
+	pokud (exp = null) => true
+	pokud (exp <> null) => false
+
+       ifnull(exp1,exp2)
+	pokud(exp1 = null) => zobrazí se exp2
+	pokud(exp1 <> null) => zobrazí se exp1
+       nvl stejný jako ifnull
+   
+       coalesce(value1,value2,...)
+	vrátí první hodnotu ze seznamu která není null
+
+	operátory
+     -----------------
+
+select  * from vyrobky
+where ???;
+
+< > <= >= <> !=
+and or not
+&&  ||  !
+
+like (supr skvělý operátor)
+
+_ jeden znak,   % více znaků
+
+vyrobky.nazev like 'N%' |vypíše výrobky začínající na "N"|
+
+between (další supr operátor)
+
+vyrobky.cena>100 and vyrobky.cena <180
+
+vyrobky.cena between 100 && 180
+
+in (-||-)
+
+vyrobky.nazev in('kebab','Pizza hawai','pizza fungi')
+
+
+join (spojování tabulek)
+
+inner join
+
+
+SELECT concat(zamestnanci.jmeno,' ',zamestnanci.prijmeni) as 'zaměstnane', 
+		date_format(zamestnanci.dat_nar,'%d.%m.%Y') as 'datum narození',
+        pozice.nazev as 'pozice',
+        pozice.plat + zamestnanci.odmena as 'plat'
+FROM pozice,zamestnanci
+WHERE zamestnanci.id_poz= pozice.id_poz;           0,0003 sekund		barbarské
+
+
+SELECT concat(zamestnanci.jmeno,' ',zamestnanci.prijmeni) as 'zaměstnane', 
+		date_format(zamestnanci.dat_nar,'%d.%m.%Y') as 'datum narození',
+        pozice.nazev as 'pozice',									mněj by trvat kratší dobu
+        pozice.plat + zamestnanci.odmena as 'plat'
+FROM pozice JOIN zamestnanci ON zamestnanci.id_poz = pozice.id_poz; nebo INNER JOIN zamestnanci USING (id_poz);
+
+SELECT v.id_vyr, v.nazev as 'výrobek',
+dv.nazev as 'druh vyrobku',
+ov.objednavka as 'číslo objednávky',
+ov.kusy as 'kusy'
+FROM (vyrobky as v JOIN obj_vyr as ov ON v.id_vyr = ov.vyrobek) JOIN druhy_vyrobku as dv USING (id_druhu)  
+ORDER BY `v`.`id_vyr` ASC;
+
+SELECT o.cislo as 'číslo objednávky', 
+	DAte_Format(o.dat_pri, '%d.%m.%Y') as 'datum přijetí',
+    ifnull(timestampdiff(minute,o.dat_pri,o.dat_exp),'nevyřízeno')as 'doba vyřízení',
+    concat(zam.jmeno,' ',zam.prijmeni) as 'zaměstnanec'
+FROM objednavky as o JOIN zakaznici as zak USING(id_zak)
+		JOIN zamestnanci as zam ON o.id_zam = zam.id_zam
+WHERE (zak.jmeno LIKE 'Josef')&&(zak.prijmeni like 'Hanousek');
+
+SELECT v.nazev as 'název',
+		Concat(v.cena,' Kč')as 'cena',
+        d.nazev as 'výrobek'
+FROM vyrobky as v JOIN druhy_vyrobku as d USING(id_druhu)
+WHERE (v.popis LIKE '%smetana%');
+
+SELECT zam.id_zam as 'id zaměstnance',
+		concat(zam.jmeno,' ',zam.prijmeni) as 'jméno a příjmení',
+        concat(zam.odmena, ' Kč') as 'odměna',
+        concat(p.plat, ' Kč') as 'plat',
+       concat( p.plat + zam.odmena,' Kč') as 'plat s odměnou'
+FROM zamestnanci as zam JOIN pozice as p USING(id_poz);
+
+SELECT concat(zam.jmeno,' ',zam.prijmeni) as 'jméno a příjmení',
+		o.cislo as 'číslo objednávky',
+        concat(DAte_Format(o.dat_pri, '%d.%m.%Y'), ' ' , date_format(o.dat_pri,'%H:%i:%s')) as 'čas přijetí'
+FROM zamestnanci as zam JOIN objednavky as o USING(id_zam);
+
+SELECT concat(zak.jmeno, ' ', zak.prijmeni) as 'jméno a příjmení',
+		concat(zak.adresa, ' ', zak.telefon) as 'adresa a telefon'
+        
+FROM zakaznici as zak JOIN objednavky as o USING(id_zak);
+
+
+
+
+LEFT JOIN -tabulka z leva všechny záznamy v pravo pouze odpovídající z levé dle podmínky
+                / \
+RIGHT JOIN -opak |
+
+FULL JOIN - nemá mariadb
+
+SELECT v.id_vyr as 'číslo',
+		v.nazev as 'název',
+        ov.objednavka as 'číslo objednávky',
+        ov.kusy as 'počet kusů'
+FROM vyrobky as v LEFT JOIN obj_vyr as ov ON v.id_vyr = ov.vyrobek  
+-- WHERE ov.kusy <=> null
+-- WHERE ov.kusy IS null
+;
+
+SELECT v.id_vyr as 'číslo',
+		v.nazev as 'název',
+        ov.objednavka as 'číslo objednávky',
+        ov.kusy as 'počet kusů'
+FROM vyrobky as v CROSS JOIN obj_vyr as ov;
+
+SELECT o.cislo, date_format( o.dat_pri, '%d.%m.%Y.%T'), concat(z.jmeno,' ', z.prijmeni)
+FROM objednavky as o natural join zakaznici  as z;
+
+SELECT z1.id_zam, z1.jmeno,
+		z2.id_zam, z2.jmeno
+FROM zamestnanci as z1 join zamestnanci as z2 ON z1.id_zam < z2.id_zam;
+
+SELECT z.id_zam, Concat(z.jmeno,' ' ,z.prijmeni) as 'jméno a příjmení', Date_format(z.dat_nar,'%d.%m.%Y') as 'datum narození',date_format(now(),'%Y')- date_format(z.dat_nar,'%Y') as 'věk',p.nazev as 'nazev pozice', concat(z.odmena+p.plat,' Kč') as 'plat', o.cislo as 'cislo objednávky' FROM (zamestnanci as z left JOIN pozice as p using(id_poz)) left join objednavky as o using(id_zam);
+
+
+SELECT 	o.cislo as "číslo objednávky", 
+		date_format(o.dat_pri,"%d.%m.%Y") as "datum přijetí",
+        concat(zak.jmeno," ",zak.prijmeni) as "jméno",
+        concat(zam.jmeno," ",zam.prijmeni) as "zaměstnanec",
+        p.nazev as "název pozice",
+        ob.kusy as 'kusů',
+        v.nazev as 'název výrobku',
+        dr.nazev as 'druh vyrobku'
+from (((((objednavky as o join zakaznici as zak using(id_zak)) join zamestnanci as zam using(id_zam)) join pozice as p using(id_poz)) join obj_vyr as ob on o.cislo = ob.objednavka)
+		join vyrobky as v on ob.vyrobek = v.id_vyr)join druhy_vyrobku as dr using(id_druhu)
+order by o.cislo asc;
+
+
+
+	agregační funkce/ sloupcové funkce
+-------------------------------------------------
+
+
+SELECT COUNT(*), sum(v.cena),sum(v.nazev),SUM(id_vyr),sum(v.cena)/count(v.id_vyr),min(v.cena),max(v.cena),
+				min(v.nazev), max(v.nazev)
+from vyrobky as v;
+
+
+select dv.nazev, count(v.id_vyr) from vyrobky as v JOIN druhy_vyrobku as dv using(id_druhu) group by dv.id_druhu;
+
+SELECT o.cislo, date_format(o.dat_pri,'%d.%m.%Y'), sum(ov.kusy), sum(ov.kusy * v.cena) FROM objednavky as o join obj_vyr as ov on o.cislo=ov.objednavka join vyrobky as v on ov.vyrobek=v.id_vyr group by o.cislo;
+
+
+
+SELECT round(avg(z.odmena+ p.plat),0) as "průměrný plat" FROM zamestnanci as z join pozice as p using(id_poz);
+SELECT trim(concat(substring(z.prijmeni,1,1),upper(substring(z.prijmeni,2,2)),substring(z.prijmeni,4,9))) FROM zakaznici as z;
+
+
+
+select o.cislo, sum(ov.kusy) as 'počet kusů', sum(ov.kusy * v.cena) as celkem from objednavky as o join obj_vyr as ov on o.cislo = ov.objednavka join vyrobky as v on ov.vyrobek = v.id_vyr GROUP by o.cislo HAVING celkem > 600;
+
+
+		alter table
+    ------------------------------
+
+https://mariadb.com/kb/en/alter-table/
+
+SELECT o.cislo as "číslo objednávky", date_format(o.dat_pri,"%d.%m.%Y") as "datum přijetí",abs(timestampdiff(minute,o.dat_exp,o.dat_pri)) as "čas vyřízení", concat(z.jmeno," ",z.prijmeni) as "jméno a příjmení", concat(zam.jmeno," ",zam.prijmeni) as "jméno zaměstnance" , sum(ov.kusy) as "počet kusů", concat(sum(v.cena*ov.kusy)," Kč") as "cena objednávky"
+FROM (((objednavky as o left join obj_vyr as ov on(ov.objednavka = o.cislo)) right JOIN zakaznici as z using(id_zak) left join zamestnanci as zam using(id_zam))) 
+right join vyrobky as v on v.id_vyr = ov.vyrobek
+WHERE (CONVERT(o.dat_pri,char) LIKE '%2016-01-06%')
+group by o.cislo;
+
+
+SELECT o.cislo as "číslo objednávky", date_format(o.dat_pri,"%Y/%d/%m") as "datum přijetí",concat(z.jmeno," ",z.prijmeni) as "jméno zákazníka",
+		concat(zam.jmeno," ",zam.prijmeni) as "jméno zaměstnance",sum(ov.kusy) as "počet výrobků",concat(sum(v.cena*ov.kusy)," Kč") as "cena objednávky",
+        count(d.id_druhu) as"počet druhů výrobků"
+
+from ((((objednavky as o left join zakaznici as z using(id_zak)) left join zamestnanci as zam using(id_zam)) join obj_vyr as ov on (o.cislo = ov.objednavka)) JOIN vyrobky as v on (ov.vyrobek=v.id_vyr)) left join druhy_vyrobku as d USING(id_druhu)
+group by o.cislo
+HAVING  count(d.id_druhu)>1;
+
+
+select vyr.id_vyr, vyr.nazev, vyr.cena
+from vyrobky as vyr where vyr.cena >
+(SELECT AVG(v.cena) from vyrobky as v)
+order by vyr.cena asc;
+
+SELECT vvv.nazev, vvv.cena
+FROM  vyrobky as vvv
+where vvv.cena =(SELECT max(vy.cena)
+from vyrobky as vy
+WHERE cena <(select avg(v.cena) from vyrobky as v));
+
+SELECT vvv.nazev, vvv.cena, vvv.popis, vvv.id_druhu
+from  vyrobky as vvv join druhy_vyrobku as dddvvv using(id_druhu)
+where vvv.cena = 
+(SELECT min(vv.cena)
+from vyrobky as vv 
+where vv.cena>(select avg(v.cena) from vyrobky as v join druhy_vyrobku as d using(id_druhu) where d.nazev like '%pizza%')) && dddvvv.nazev like 'pizza';
+
+
+select concat(za.jmeno," ",za.prijmeni) as "jméno", poz.plat+za.odmena as "plat", poz.nazev as "pozice", count(o.cislo) as "počet přijatých objednávek"
+from (zamestnanci as za join pozice as poz using(id_poz)) left join objednavky as o using(id_zam)
+where (poz.plat+za.odmena) < (SELECT avg(po.plat+z.odmena) from zamestnanci as z join pozice as po using(id_poz))
+group by za.id_zam;
+
+select Round(avg(cena)) as "průměrná cena" from
+(select sum(v.cena * ov.kusy) as cena
+from obj_vyr as ov join vyrobky as v on ov.vyrobek = v.id_vyr
+GROUP By ov.objednavka) as  nova_tabulka;
+
+create view  wpozice as select p.nazev p.plat from pozice as p;
+
+create view wpřehledObjednavek as
+select z.id_zak as "číslo zákazníka", concat(z.jmeno," ",z.prijmeni) as "jméno", z.telefon, o.cislo as "číslo", date_format(o.dat_pri, "%d.%m.%Y") as "datum", sum(ov.kusy) as "kusy", sum(ov.kusy*v.cena) as "cena objednávky"
+from ((zakaznici as z join objednavky as o using(id_zak)) join obj_vyr as ov on o.cislo = ov.objednavka) join vyrobky as v on v.id_vyr=ov.vyrobek
+GROUP by o.cislo
+order by z.id_zak asc,o.cislo desc;
+
+create view wprehledzam as
+SELECT
+    z.id_zam AS "číslo",
+    CONCAT(Z.JMENO, " ", Z.prijmeni) AS "ZAMESTNANEC",
+    DATE_FORMAT(Z.dat_nar, "%d.%m.%Y") AS "datum narození",
+    p.nazev AS "pozice",
+    p.plat + z.odmena AS "plat",
+    count(o.cislo) as "počet přijatých objednavek"
+FROM
+    zamestnanci AS z
+JOIN pozice AS p USING(id_poz)
+LEFT JOIN objednavky AS o USING(id_zam)
+group by z.id_zam 
+ORDER by count(o.cislo) desc;
+
+CREATE or REPLACE VIEW wprehledvyrobky as
+SELECT v.id_vyr as "id výrobku", v.nazev as "název výrobku", dv.nazev as "název výrobku", count(ob.objednavka) as "počet na objednávkách",
+IF(sum(ob.kusy) IS NULL, "není v objednávce", sum(ob.kusy)) as "celkový počet kusů",IF(max(o.dat_pri) IS NULL, "neni v objednavce", max(date_format(o.dat_pri,"%d.%m.%Y %T"))) as "čas poslední objednávky" 
+from vyrobky as v join druhy_vyrobku as dv using(id_druhu) left join obj_vyr as ob on ob.vyrobek=v.id_vyr left join objednavky as o on o.cislo= ob.objednavka
+group by v.id_vyr
+order by v.id_vyr;
+------------------------------------------------------------------------------------------------------------------------------------------
+(datediff(now(),z.dat_nar)-(366*(timestampdiff(year,z.dat_nar,now())-floor(timestampdiff(year,z.dat_nar,now())))))/366-(datediff(now(),z.dat_nar)-
+ (datediff(now(),z.dat_nar)-(366*(timestampdiff(year,z.dat_nar,now())-floor(timestampdiff(year,z.dat_nar,now())/4)))))/365	
+
+select z.id_zam as "id zaměstnance", concat(z.jmeno," ",z.prijmeni), date_format(z.dat_nar,"%d.%m.%Y"), -- date_format(timediff(z.dat_nar,Now()),"%Y") as "x let", date_format(Now(),"%Y"), date_format(z.dat_nar,"%Y"),
+datediff(now(),z.dat_nar)/365 as "x let", abs(timestampdiff(year,now(),z.dat_nar)) as "x let", abs(timestampdiff(month,now(),z.dat_nar)) % 12  as "x měsíců",TIMESTAMPDIFF(day, DATE_ADD(DATE_ADD(z.dat_nar, INTERVAL TIMESTAMPDIFF(year, z.dat_nar, CURRENT_DATE()) year), INTERVAL 				   TIMESTAMPDIFF(month, DATE_ADD(z.dat_nar, INTERVAL TIMESTAMPDIFF(year, z.dat_nar, CURRENT_DATE()) year), CURRENT_DATE()) 					 month), CURRENT_DATE()) AS "x dní"
+
+from zamestnanci as z;
+
+------------------------------------------------------------------------------------------------------------------------------------------
+typy omezení primárního klíče
+
+
+SELECT zak.id_zak, concat(zak.jmeno," ",zak.prijmeni) as "zákazník",count( o.cislo), Date_format(o.dat_pri,"%d.%m.%Y"),
+date_format(max(o.dat_pri),"%d.%m.%Y") as "nejnovejší objednávka"
+FROM zakaznici as zak join objednavky as o using(id_zak)
+GROUP by zak.id_zak
+having count(o.cislo)<6;
+
+----------------------------------------------------------------
+sekvence
+
+CREATE sequence if not EXISTS EpicSequence
+START WITH 3
+increment by 5
+minvalue = 2
+maxvalue =83;
+
+
+create sequence if not exists jitrniceSekvence
+start WITH 10
+increment by -10
+no minvalue
+maxvalue = 10;
+
+SELECT nextval(epicsequence);
+
+alter table pozice AUTO_INCREMENT = 15; 
+
+----------------------------------------------------------------
+indexové soubory ()
+
+pro rychlé vyhledávání pro velké objemy dat
+
+pro každý primární klíč
+
+unikátní index create table, create alter table
+
+obyčejné indx
+fulltextové indx
+
+show index from druhy_vyrobku;
+
+show indexes from zamestnanci; 
+
+show keys from obj_vyr; 
+
+CREATE index indx_pepa on zamestnanci(jmeno DESC, prijmeni desc); 
+
+CREATE index idx_nazev_druhu on druhy_vyrobku(nazev desc); 
+
+create UNIQUE index idx_nazev on druhy_vyrobku(nazev asc); 
+
+create fulltext index idx_nazev on vyrobky(popis asc);
+
+create index idx_jmeno_zak on zakaznici(jmeno asc, prijmeni asc);
+
+CREATE INDEX idx_zamestnanec on zamestnanci(prijmeni(4) asc ); 
+
+CREATE UNIQUE INDEX idx_telefonZak on zakaznici(telefon); 
+
+CREATE INDEX idx_nazevpozice on pozice(nazev(4)); 
+
+CREATE INDEX idx_cenavyr on vyrobky(cena); 
+
+SELECT * FROM information_schema.statistics where TABLE_schema='pizzerie'and index_name != 'primary' and index_name not like 'fk%'; 
+
+CREATE sequence if not EXISTS Mojesekvence START WITH 200 increment by 5 MAXVALUE 500 minvalue 200; 
+
+create or REPLACE sequence s1 START WITH 100 increment by 10 minvalue 100 MAXVALUE 5000; 
+
+CREATE or REPLACE table Pokus(id int primary key default nextval(s1) , nazev char(2)); 
+
+
+create view wTabulkyInfo as
+Select 'Druhy_vyrobku' as tabulka, count(druhy_vyrobku.id_dru) as pocet_radku from druhy_vyrobku
+union 
+Select 'Vyrobky', Count(*) from vyrobky
+union
+select 'Obj_vyr', count(*) from obj_vyr
+union
+select 'Objednavky', count(*) from objednavky
+union
+select 'Zakaznici', count(*) from zakaznici
+union
+select 'Zamestnanci', Count(*) from zamestnanci
+union
+select 'Pozice', Count(*) from pozice;
+
