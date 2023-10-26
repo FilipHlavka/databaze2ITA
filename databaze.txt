@@ -721,3 +721,102 @@ select 'Zamestnanci', Count(*) from zamestnanci
 union
 select 'Pozice', Count(*) from pozice;
 
+-----------------------------------------------------------------------------------------------------------
+
+
+create user 'Pepa123'@'localhost' identified by '12345' password expire;
+set password for 'Pepa123'@'localhost' = password('12345');
+grant SELECT on pizzerie.* to 'Pepa123'@'localhost';
+grant insert on pizzerie.Pozice to 'Pepa123'@'localhost;
+show grants for 'Pepa123'@'localhost';
+revoke insert on pizzerie.* from 'Pepa123'@'localhost';
+------------------------------------------------------------------------------------------------------------
+E,A,R,Z
+
+R → kardinalita = max. počet souvisejících záznamů   | relace 1:1 | 1:N | M:N
+  → optionalita = min. počet souvisejících záznamů   | 0 | 1
+  → transferabilia = přenositelnost | ano, ne
+
+	ne → -kosočtverec-
+	0 → -o-
+	1 → čárka
+	n → trojzubec směřovaný v pravo
+
+
+př.
+
+zákazníci				    objednavky
+ -----------------------                    --------------------
+| #id_zak(pk)           | čárka |	   | #cislo_obj(pk)     |
+ -----------------------        |            --------------------
+|			| 	--trojzubec|  *id_zak(fk)       |
+ -----------------------                    --------------------
+| 			| 		   |                    |
+ -----------------------                    --------------------
+				 ↑
+				1:N
+př.
+
+		objednávky				    výrobky
+		 -----------------------                    --------------------
+	 |čárka-| #cislo_obj(pk)        |		   | #id_vyrobku(pk)    |čárka -|
+	 |	 -----------------------                    --------------------        |
+	 |	|			| 		   |  		        |       |
+	 |	 -----------------------                    --------------------        |
+	 |	| 			| 		   |                    |       |
+	 |	 -----------------------                    --------------------        |
+	 |										|
+	 |										|
+	 |										|
+	 |		 -----------------------   					|
+	 |		| *id_vyr(fk)           | trojzubec----------------------------
+	 |		 -----------------------  
+	 ------trojzubec| *cislo_obj(fk)	| 
+			 -----------------------  
+			| 			|
+			 -----------------------  
+
+
+				 ↑
+				M:N
+
+supertyp - tabulka se všema společnýma věcma z jiných tabulek
+
+subtyp - ↑ ty tabulky
+
+oblouk - buď to nebo to
+
+
+CREATE TABLE Pozice(
+id_poz int PRIMARY key AUTO_INCREMENT,
+    nzev char(15) not null,
+    plat mediumint(6) unsigned not null,
+    id_poz_nad int
+
+);
+ALTER TABLE Pozice add CONSTRAINT fk_nadrizeny FOREIGN KEY (id_poz_nad) REFERENCES Pozice(id_poz);
+
+ALTER TABLE zakaznici add CONSTRAINT fk_mesta FOREIGN KEY (id_mes) REFERENCES mesta(id_mes);
+
+CREATE TABLE zamestnanci(
+	id_zam int PRIMARY KEY,
+    jmeno char(15) not null,
+    prijmeni char(20) not null,
+    dat_nas date not null,
+    adresa varchar(50) not null,
+    telefon int(9) ZEROFILL not null,
+    mail varchar(40),
+    dat_nar date not null,
+    id_poz int not null,
+    odmena mediumint(6) unsigned not null
+);
+CREATE TABLE obj_vyr(
+
+	cislo int not null,
+    id_vyr int not null,
+    kusy tinyint not null DEFAULT 1
+
+
+
+
+);
