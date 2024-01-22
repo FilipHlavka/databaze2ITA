@@ -1250,3 +1250,19 @@ BEGIN
     
 END//
 DELIMITER ;
+
+
+
+
+
+DELIMITER //
+CREATE OR REPLACE Function CelkovaCena(cislo_obj int) returns int decimal(8,2)
+reads sql data
+BEGIN
+
+	Declare vysl decimal(8,2)
+	select sum(v.cena * ov.kusy) into vysl from vyrobky as v join as ov using(id_vyr) where ov.cislo = cislo_obj;
+	return vysl;
+ 
+END//
+DELIMITER ;
