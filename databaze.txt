@@ -820,3 +820,433 @@ CREATE TABLE obj_vyr(
 
 
 );
+
+DELIMITER//
+create PROCEDURE Pokus02()
+begin declare x int default 0;
+	BEGIN declare x int DEFAULT 1;
+    	BEGIN DECLARE x int DEFAULT 1;
+        SELECT x;				
+        end;
+        SELECT x;
+        end;
+        SELECT x;
+        end//
+        DELIMITER ;         
+
+DELIMITER //
+create PROCEDURE Vypocetprepony( odvesna1 int, odvesna2 int)
+	BEGIN
+
+        declare vysl decimal;
+        set vysl= sqrt((odvesna1*odvesna1)+(odvesna2*odvesna2));
+        select vysl AS 'přepona', odvesna1 as "1. odvěsna", odvesna2 as "2. odvěsna";
+        
+        
+  end;
+//
+DELIMITER ;           
+DELIMITER //
+create PROCEDURE KruhOS(polomer int)
+	BEGIN
+
+        declare obvod decimal;
+        DECLARE obsah decimal;
+        set obvod= 2*PI()*polomer;
+        set obsah= PI()*(polomer*polomer);
+        select polomer AS 'poloměr', obvod as "obvod kruhu", obsah as "obsah kruhu";
+        
+        
+  end
+//
+DELIMITER ;       
+
+
+DELIMITER $$ 
+CREATE or REPLACE PROCEDURE ResKvaRov( a int, b int, c int)
+BEGIN
+	DECLARE x1, x2 float;
+    DECLARE d int;
+    if (a = 0) THEN -- nejde o quadratickou rovnici
+    	if (b = 0) THEN -- konstantní funkci
+        	if(c = 0) THEN
+            SELECT a,b,c, 'Nekonečně mnoho řešení' as řešení;
+            ELSE
+            	SELECT a,b,c, 'Nejde' as řešení;
+            END if;
+        ELSE  -- jde o lin fci
+    	set x1 = -c / b;
+        SELECT a,b,c, x1 as řešení;
+    end if;
+    ELSE -- je qvadratycká rovnice
+    set d = power(b,2) - 4*a*c;
+    if (d < 0) THEN
+   		SELECT a,b,c,d, 'řešení v R neexistuje' as řešení;
+    ELSEIF (d = 0) THEN
+    	set x1 = (-b) / (2*a);
+        SELECT a,b,c,d,x1 as řešení;
+    ELSE
+    	SET x1 = ((-b) - sqrt(d))/(2*a),x2 = ((-b) + sqrt(d))/(2*a);
+        SELECT a,b,c,d, x1 as řešení_1, x2 as řešení_2;
+    end if;
+ end if;
+
+end$$
+DELIMITER ;
+
+
+DELIMITER $$ 
+CREATE or REPLACE PROCEDURE SlovniHodnoceni( x tinyint(1))
+BEGIN
+	CASE x 
+    when 1 then SELECT 'šprt';
+    when 2 then SELECT 'dvojka';
+    when 3 THEN SELECT 'tři';
+    when 4 then SELECT 'čtyří';
+    when 5 THEN SELECT 'pět';
+    ELSE SELECT 'nneeeeeee';
+    end case;
+end;
+
+
+end$$
+DELIMITER ;
+
+
+
+DELIMITER $$ 
+CREATE or REPLACE PROCEDURE HodKostkou()
+BEGIN
+	DECLARE hod tinyint(1) unsigned;
+    SET hod = floor(RAND()*6+1);
+    case hod
+    when 1 THEN SELECT "1" as vysl;
+    when 2 THEN SELECT "2" as vysl;
+    when 3 then SELECT "3" as vysl;
+	when 4 then SELECT "4" as vysl;
+    when 5 then SELECT "5" as vysl;
+    when 6 then SELECT "6" as vysl;
+    end case;
+end$$
+DELIMITER ;
+
+
+CREATE or REPLACE PROCEDURE HodKostkou(maxcislo int)
+BEGIN
+	SELECT concat("hodil jsi",floor(RAND()*6+1)) as vysl;
+	
+end;
+
+CREATE or REPLACE PROCEDURE HodKostkou()
+BEGIN
+	DECLARE hod tinyint(1) unsigned;
+    if(rand() <0.5)then select "Stávk!!" as lol;
+    ELSE
+    SELECT concat("hodil jsi",floor(RAND()*6+1)) as vysl;
+   end if;
+end;
+
+
+DELIMITER $$ 
+CREATE or REPLACE PROCEDURE UrciZnak(rn char(2))
+BEGIN
+	case
+    	when (rn in ("a","e","i","o","y","u","ě")) then select concat(rn," je krátká samohláska")  as vysledek;
+        
+    	when (rn in ("á","é","í","ó","ý","ů","ú")) then select concat(rn," je dlouhá samohláska")  as vysledek;
+    	when (rn in ("h","k","r","t","d","ch","n"))  then select concat(rn," je tvrdá souhláska")  as vysledek;
+    	when (rn in ("ž","š","č","c","ť","j","ď","ň","ř"))  then select concat(rn," je měká souhláska")  as vysledek;
+    	when (rn in ("b","l","m","p","z","f","s","v"))  then select concat(rn," je obojetná souhláska")  as vysledek;
+    	when (rn in ("x","g","q","w")) then select concat(rn," je ostatní souhláska")  as vysledek;
+        else SELECT concat(rn," není v české abecedě") as vysledek;
+        end case;
+        
+        
+end$$
+DELIMITER ;
+
+DELIMITER $$ 
+CREATE or REPLACE PROCEDURE UrciZnak(rn CHAR(2))
+BEGIN
+    IF rn IN ('a','e','i','o','y','u','ě') THEN
+        SELECT CONCAT(rn, ' je krátká samohláska') AS vysledek;
+        
+    ELSEIF rn IN ('á','é','í','ó','ý','ů','ú') THEN
+        SELECT CONCAT(rn, ' je dlouhá samohláska') AS vysledek;
+        
+    ELSEIF rn IN ('h','k','r','t','d','ch','n') THEN
+        SELECT CONCAT(rn, ' je tvrdá souhláska') AS vysledek;
+        
+    ELSEIF rn IN ('ž','š','č','c','ť','j','ď','ň','ř') THEN
+        SELECT CONCAT(rn, ' je měká souhláska') AS vysledek;
+        
+    ELSEIF rn IN ('b','l','m','p','z','f','s','v') THEN
+        SELECT CONCAT(rn, ' je obojetná souhláska') AS vysledek;
+        
+    ELSEIF rn IN ('x','g','q','w') THEN
+        SELECT CONCAT(rn, ' je ostatní souhláska') AS vysledek;
+        
+    ELSE
+        SELECT CONCAT(rn, ' není v české abecedě') AS vysledek;
+        
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$ 
+CREATE or REPLACE PROCEDURE UrciZnak(rn CHAR(2))
+BEGIN
+    IF rn IN ('a','e','i','o','y','u','ě','á','é','í','ó','ý','ů','ú') THEN
+        IF LENGTH(rn) = 2 THEN
+            SELECT CONCAT(rn, ' je dlouhá samohláska') AS vysledek;
+        ELSE
+            SELECT CONCAT(rn, ' je krátká samohláska') AS vysledek;
+        END IF;
+        
+        
+    ELSEIF rn IN ('h','k','r','t','d','ch','n') THEN
+        SELECT CONCAT(rn, ' je tvrdá souhláska') AS vysledek;
+        
+    ELSEIF rn IN ('ž','š','č','c','ť','j','ď','ň','ř') THEN
+        SELECT CONCAT(rn, ' je měká souhláska') AS vysledek;
+        
+    ELSEIF rn IN ('b','l','m','p','z','f','s','v') THEN
+        SELECT CONCAT(rn, ' je obojetná souhláska') AS vysledek;
+        
+    ELSEIF rn IN ('x','g','q','w') THEN
+        SELECT CONCAT(rn, ' je ostatní souhláska') AS vysledek;
+        
+    ELSE
+        SELECT CONCAT(rn, ' není v české abecedě') AS vysledek;
+        
+    END IF;
+END$$
+
+
+DELIMITER $$
+
+BEGIN
+	DECLARE max INT;
+    SET max = GREATEST(a, b, c);
+	IF a + b > c AND a + c > b AND b + c > a THEN
+   		IF a = b AND b = c THEN SELECT 'je rovnostranný' as vysledek;  
+   		ELSEIF a = b or b = c or a = c then select "je rovnoramenný" as vysledek;
+        ELSEIF power(max,2) = (a*a) + (b*b) or  power(max,2) = (a*a) + (c*c) or  power(max,2) = (c*c) + (b*b) then SELECT "je 			pravoúhlý" as vysledek;
+        ELSE SELECT "je obecný trojúhélník" as vysledek;
+   		end if;
+        ELSE SELECT "není trojúhélník" as vysledek;
+   END IF;
+END$$
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE UpravPlatZnak(id INT, minplat INT)
+BEGIN
+	if id <= 8 and id >= 1 then
+    	if (pozice.plat WHERE pozice.id_poz = id) > 2 * minplat then select minplat = pozice.plat-((pozice.plat/100)) as plat;
+        ELSEIF (pozice.plat WHERE pozice.id_poz = id) < minplat then select minplat as plat
+    	end if;
+    else SELECT "neni takový zaměstnanec";
+END$$
+
+DELIMITER ;
+
+CREATE OR REPLACE PROCEDURE UpravPlatZnak(id INT, minplat INT)
+BEGIN
+    DECLARE plat_value INT;
+
+    IF id BETWEEN 1 AND 8 THEN
+        SELECT plat INTO plat_value FROM pozice WHERE id_poz = id;
+
+        IF plat_value > 2 * minplat THEN
+            UPDATE pozice SET plat = plat_value - (plat_value / 100) WHERE id_poz = id;
+        END IF;
+    ELSE
+        SELECT "neni takový zaměstnanec" AS result;
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE OR REPLACE PROCEDURE faktorial(x INT)
+BEGIN
+		DECLARE vysl bigint DEFAULT 1;
+        DECLARE pom int DEFAULT n;
+        if x <0 then 
+        	SELECT "nejde";
+        ELSEIF n>1 then
+        		qq loop 
+                if pom <2 then LEAVE qq; end if;
+            	set vysl = vysl * pom;
+                set pom = pom - 1;
+                END LOOP qq;
+        ELSE
+        
+        END IF;
+            	
+END$$
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE OR REPLACE PROCEDURE FaktorialLoop(n INT)
+BEGIN
+    DECLARE vysl BIGINT default 1;
+    DECLARE pom INT DEFAULT n;
+    
+    IF (n < 0) THEN
+        SELECT CONCAT(n, "! faktoriál neexistuje") AS výsledek;
+    ELSE
+        QQQ : LOOP
+            IF (pom < 2) THEN LEAVE QQQ; END IF;
+            SET vysl = vysl * pom;
+            SET pom = pom - 1;
+        END LOOP;
+        
+        SELECT CONCAT(n, " faktorial je ", vysl) AS výsledek;
+    END IF;
+END //
+DELIMITER ;
+
+-------------------------------------------------------------------------------------------
+DELIMITER //
+CREATE OR REPLACE PROCEDURE FaktorialLoop2(n INT)
+BEGIN
+    DECLARE vysl double DEFAULT 1;
+    DECLARE pom INT DEFAULT n;
+    IF(n < 0) THEN
+        SELECT CONCAT(n,"! neexistuje!") AS vysledek;
+    ELSEif (n>1) then
+        QQQ : LOOP
+            SET vysl = vysl * pom;
+            SET pom = pom - 1;
+	    if (pom = 1) then leave QQQ; end if;
+        END LOOP QQQ;
+	SELECT concat(n,'! = ',vysl) as vysledek;
+	else
+        SELECT CONCAT(n,"! = ", vysl) AS vysledek;
+    END IF;
+END//
+DELIMITER ;
+---------------------------------------------------------------------------------------------------
+
+DELIMITER //
+CREATE OR REPLACE PROCEDURE Deleni(delenec INT,delitel INT)
+BEGIN
+	Declare podil int default 0;
+	declare zbytek int default ABS(delenec);
+	declare delit int default ABS(delitel);
+	if delitel = 0 then Select "nulou nelze dělit" as Chyba;
+	elseif delenec = 0 then select delenec,delitel,podil,zbytek;
+	else
+		QQQ : LOOP
+			if zbytek < delitel then leave QQQ; END IF;
+			SET zbytek = zbytek - delit;
+			SET podil = podil + 1;
+		END LOOP QQQ;
+	end if;
+	set zbytek = SIGN(delenec)*zbytek;
+	set podil = Sign(delenec)* sign(delitel) * podil;
+	select delenec,delitel,podil,zbytek
+
+END//
+DELIMITER ;
+
+
+DELIMITER //
+CREATE OR REPLACE PROCEDURE SectiInt(a INT, b int)
+BEGIN
+Declare vysl BIGINT default 0;
+Declare minx int Default Least(a,b);
+Declare maxx int default Greatest(a,b);
+declare pom int;
+
+	-- while
+	While(pom <= maxx) Do
+	     set vysl = vysl + pom;
+	     set pom = pom + 1;
+	end while;
+
+	select minx,maxx, vysl as 'while';
+	-- repeat
+	set pom = minx,vysl =0;
+	REPEAT
+ 	     set vysl = vysl + pom;
+	     set pom = pom + 1;
+
+	until (pom> maxx)
+	end repeat;
+	Select minx,maxx,vysl as 'repeat'; 
+	-- for loop
+
+	set vysl = 0;
+	for pom in minx..maxx do
+	set vysl 
+
+	end for;
+
+	
+END//
+DELIMITER ;
+
+
+-----------------------------------------------------------------------------------
+set @a = 10;
+set @c = 20;
+
+Delimiter //
+Create procedure Pokus04 (in vs int, out vy int, inout vv int )
+
+begin
+ set vs = vs*vv;
+ set vy = vs- vv;
+ set vv = vs + vy;
+
+ select vs,vv,vy;
+
+end//
+DElimiter ;
+
+select @a,@b,@c;
+
+call Pokus04(@a,@b,@c);
+
+select @a,@b,@c;
+
+---------------------------------------------
+
+DELIMITER //
+CREATE OR REPLACE PROCEDURE NeveciDeleni(IN a INT,IN b INT, OUT c int)
+BEGIN
+	
+    declare pom int;
+   -- declare poma int DEFAULT a;
+   -- DECLARE pomb int DEFAULT b;
+    set a = ABS(a);
+    set b = ABS(b);
+	if a = 0 or b = 0 then set c = pom;
+	else
+		QQQ : LOOP
+        	if a = b then set pom = a; leave QQQ; END IF;
+			if a < b then set b = b - a;  else set a = a - b; end if; -- then leave QQQ; END IF;
+		END LOOP QQQ;
+	end if;
+   -- if poma < 0 and pomb < 0 then set c = pom; elseif poma < 0 or pomb < 0 then set c = (-pom); ELSE set c = pom; end if;
+    
+    
+END//
+DELIMITER ;
