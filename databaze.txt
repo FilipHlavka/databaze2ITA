@@ -1266,3 +1266,467 @@ BEGIN
  
 END//
 DELIMITER ;
+
+
+DELIMITER //
+CREATE OR REPLACE FUNCTION ZakMaxObjDen(den DATE) RETURNS VARCHAR()
+READS SQL DATA
+BEGIN
+
+DECLARE celeJmeno VARCHAR();
+
+if select COUNT(objednavky) where den = objednavky.dat_pri ; = 0 THEN return select "neni objednavka";
+
+SELECT "sss"  INTO celeJmeno FROM obj_vyr ;
+
+RETURN celeJmeno;
+
+END //
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE OR REPLACE FUNCTION ZakMaxObjDen(den DATE) RETURNS VARCHAR(45)
+READS SQL DATA
+BEGIN
+
+    DECLARE celeJmeno VARCHAR(45);
+
+    
+    IF (SELECT COUNT(objednavky.cislo) FROM objednavky WHERE den = objednavky.dat_pri) = 0 THEN
+        RETURN 'neni objednavka';
+    END IF;
+
+  SELECT objednavky.cislo into cisloObj from objednavky as obj join obj_vyr USING(cislo)
+    SELECT "aaaa" INTO celeJmeno FROM ;
+
+    RETURN celeJmeno;
+
+END //
+
+DELIMITER ;
+
+SELECT ZakMaxObjDen('2009-01-04');
+
+
+
+
+DELIMITER //
+
+CREATE OR REPLACE FUNCTION ZakMaxObjDen(den DATE) RETURNS VARCHAR(45)
+READS SQL DATA
+BEGIN
+
+    DECLARE celeJmeno VARCHAR(45);
+    DECLARE maxCena float(20);
+    DECLARE pom int(50);
+
+    SELECT COUNT(objednavky.cislo) into pom FROM objednavky WHERE den = date(objednavky.dat_pri);
+    IF pom = 0 THEN
+        RETURN 'neni objednavka';
+    END IF;
+    
+    SELECT (vyr.cena * ov.kusy) into maxCena FROM FROM zakaznici z
+        JOIN objednavky obj ON z.id_zak = obj.id_zak
+        JOIN obj_vyr ov ON obj.cislo = ov.cislo
+        JOIN vyrobky vyr ON ov.id_vyr = vyr.id_vyr
+        WHERE DATE(obj.dat_pri) = den;
+
+	SELECT z.jmeno INTO celeJmeno
+        FROM zakaznici z
+        JOIN objednavky obj ON z.id_zak = obj.id_zak
+        JOIN obj_vyr ov ON obj.cislo = ov.cislo
+        JOIN vyrobky vyr ON ov.id_vyr = vyr.id_vyr
+        WHERE DATE(obj.dat_pri) = den AND vyr.cena = maxCena;
+    
+
+    RETURN celeJmeno;
+
+END //
+
+DELIMITER ;
+
+
+DELIMITER // 
+
+create or replace function ZakMaxObjDen2(den DATE) returns char(50)
+reads sql data
+begin
+declare vystup char(50);
+declare pocet tinyint;
+DECLARE celkem decimal(8,2);
+declare idzak int;
+
+-- >w<
+
+if isnull(DATEIFF(NOW(),den)) then set vystup ='ne ne'; 
+
+else 
+	select count(o.cislo) into pocet from objednavky as o where date(o.dat_pri) = den;
+	if pocet>0 then 
+	 SELECT o.id_zak, SUM(v.cena*ov.kusy) AS 'celkem' INTO idzak, celkem
+            FROM objednavky AS o JOIN obj_vyr AS ov USING(cislo) JOIN vyrobky AS v USING(id_vyr)
+            WHERE DATE(o.dat_pri) = den
+            GROUP BY o.cislo
+            ORDER BY celkem DESC
+            LIMIT 1;
+            SELECT CONCAT(z.jmeno,' ',z.prijmeni,' ',cenacelk) INTO vystup FROM zakaznici AS z WHERE z.id_zak = idzak;
+        ELSE
+				    
+	 set vystup = 'neni';
+  	end if;
+end if;
+return vystup;
+
+
+
+end//
+
+
+
+DELIMITER ;
+
+delimiter //
+
+create or replace function ZakMaxObjDen(den DATE) returns char(50)
+
+BEGIN
+    DECLARE zakaznik_jmeno VARCHAR(255);
+    DECLARE zakaznik_prijmeni VARCHAR(255);
+
+    IF EXISTS (SELECT * FROM objednavky WHERE DATE(dat_pri) = den) THEN
+        SELECT zakaznici.jmeno, zakaznici.prijmeni INTO zakaznik_jmeno, zakaznik_prijmeni
+        FROM zakaznici
+        JOIN objednavky ON zakaznici.id_zak = objednavky.id_zak
+        JOIN obj_vyr ON objednavky.cislo = obj_vyr.cislo
+        JOIN vyrobky ON obj_vyr.id_vyr = vyrobky.id_vyr
+        WHERE DATE(objednavky.dat_pri) = den
+        ORDER BY vyrobky.cena desc   
+        LIMIT 1;
+    ELSE
+        SET zakaznik_jmeno = 'Nikdo';
+        SET zakaznik_prijmeni = '';
+    END IF;
+
+    RETURN CONCAT(zakaznik_jmeno, ' ', zakaznik_prijmeni);
+END//
+delimiter ;
+
+
+
+DELIMITER //
+
+create or replace function CenaObjBezDPH(cisloobj int, dph tinyint) returns int 
+reads sql data
+BEGIN
+   -- >w<
+ 	if cisloobj <= max(obj_vyr.cislo) then RETURNS 3;
+    	end if;
+    returns 0;
+    
+END//
+delimiter ;
+
+
+
+DELIMITER //
+CREATE OR REPLACE FUNCTION CenaObjBezDPH(cisloobj INT, dph INT) RETURNS decimal(10,2)
+READS SQL DATA
+BEGIN
+    DECLARE je decimal(10,2);
+    declare cena decimal(10,2);
+
+    SELECT COUNT(*) INTO je FROM objednavky WHERE objednavky.cislo = cisloobj;
+
+    IF je = 0 THEN  RETURN -1;
+    END IF;
+	
+	IF dph < 0 or dph >= 100 THEN RETURN -2;
+	end if;
+    
+   SELECT sum(vyr.cena * ov.kusy) into cena from obj_vyr as ov join vyrobky as vyr using(id_vyr) where ov.cislo = cisloobj;
+   return (cena/(dph+100))*100;
+END//
+DELIMITER ;
+
+
+
+DELIMITER //
+CREATE or REPLACE PROCEDURE PrehledZamestnancu()
+BEGIN 
+	DECLARE jmenozam char(36);
+    DECLARE platzam Mediumint unsigned;
+    DECLARE pozzam char(15);
+	DECLARE cur_zam CURSOR for 
+    	SELECT concat(z.jmeno,' ',z.prijmeni), z.odmena + p.plat, p.nazev
+    		FROM zamestnanci as z JOIN pozice as p using(id_poz);
+		OPEN cur_zam;
+      	FETCH cur_zam into jmenozam,platzam,pozzam;
+        CLOSE cur_zam;
+end//
+DELIMITER ;
+
+DELIMITER //
+CREATE or REPLACE Function DejJM(id int) RETURNS char(60)
+READS SQL DATA
+BEGIN 
+	DECLARE jmeno char(60);
+ 	SELECT concat(zakaznici.jmeno," ",zamestnanci.prijmeni) into jmeno from zakaznici WHERE zakaznici.id_zak = id;
+	RETURN jmeno;
+
+end//
+DELIMITER ;
+
+DELIMITER //
+CREATE or REPLACE Function DejPocObj(id int) RETURNS int
+READS SQL DATA
+BEGIN 
+	DECLARE pocet int;
+ 	SELECT COUNT(o.cislo) into pocet from zakaznici as z join objednavky as o using(id_zak) WHERE o.id_zak = id;
+	RETURN pocet;
+
+end//
+DELIMITER ;
+
+DELIMITER //
+CREATE or REPLACE Function DejPocVyr(id int) RETURNS int
+READS SQL DATA
+BEGIN 
+	DECLARE pocet int;
+ 	SELECT SUM(ov.kusy) into pocet from zakaznici as z join objednavky as o using(id_zak) JOIN obj_vyr as ov using(cislo) WHERE o.id_zak = id;
+	RETURN pocet;
+
+end//
+DELIMITER ;
+3089.00
+
+
+DELIMITER //
+CREATE or REPLACE Function DejCenu(id int) RETURNS int
+READS SQL DATA
+BEGIN 
+	DECLARE cena int;
+ 	SELECT (sum(v.cena*ov.kusy))/DejPocObj(id) into cena from zakaznici as z join objednavky as o using(id_zak) JOIN obj_vyr as ov using(cislo) 
+    join vyrobky as v using(id_vyr) WHERE o.id_zak = id;
+	RETURN cena;
+
+end//
+DELIMITER ;
+
+DELIMITER //
+CREATE or REPLACE PROCEDURE PrehledZakazniku()
+BEGIN 
+-- >w<
+-- DECLARE id int;
+-- DECLARE jmeno char(50);
+
+SELECT zakaznici.id_zak, DejJM(zakaznici.id_zak),DejPocObj(zakaznici.id_zak),DejPocVyr(zakaznici.id_zak),DejCenu(zakaznici.id_zak) from zakaznici;
+
+end//
+DELIMITER ;
+
+---------------------------------------------------------------------------------
+
+DELIMITER //
+CREATE or REPLACE PROCEDURE PrehledZamestnancu2()
+BEGIN 
+-- >w<
+	DECLARE konec bool DEFAULT false;
+	DECLARE jmenozam char(36);
+    DECLARE platzam Mediumint unsigned;					
+    DECLARE pozzam char(15);
+   
+	DECLARE cur_zam CURSOR for 
+    	SELECT concat(z.jmeno,' ',z.prijmeni), z.odmena + p.plat, p.nazev			
+    		FROM zamestnanci as z JOIN pozice as p using(id_poz);
+  	DECLARE CONTINUE HANDLER FOR NOT FOUND SET konec = true;
+        CREATE or REPLACE TABLE PrehledZam(
+        		jmeno_zam char(36),                                                          
+            	plat_zam mediumint unsigned,
+            	pozice_zam char(15)						
+        );
+		OPEN cur_zam;
+        QQQ : LOOP								
+      	FETCH cur_zam into jmenozam,platzam,pozzam;
+        if (konec) then LEAVE QQQ; end if;
+        INSERT INTO PrehledZam VALUES(jmenozam, platzam, pozzam);
+        end loop QQQ;
+        CLOSE cur_zam;
+end//
+DELIMITER ;
+----------------------------------------------------------------------------------
+
+DELIMITER //
+CREATE or REPLACE PROCEDURE SlevaPevna( in procento int)
+BEGIN 
+-- >w<
+    DECLARE konec bool DEFAULT false;
+	DECLARE idvyr int;
+    DECLARE nazevVyr char(50);
+    DECLARE nazevDruhu char(15);
+    DECLARE cenaVyr, slevaVyr decimal(6,2);
+	DECLARE cur_sleva CURSOR FOR SELECT v.id_vyr, v.nazev, d.nazev, v.cena
+    		FROM vyrobky as v join druhy_vyrobku as d using(id_dru);
+    DECLARE EXIT HANDLER FOR SQLSTATE '02000' SET konec = true;
+    CREATE OR REPLACE TABLE Zlevnene_vyrobky(
+        id_vyr int PRIMARY KEY,
+        nazev_vyr char(50),
+        nazev_dru char(15),
+        cena_pred Decimal(6,2),
+        sleva decimal(6,2),
+        cena_po decimal(6,2)
+    );
+    OPEN cur_sleva;
+    QQQ : LOOP
+    	FETCH cur_sleva INTO idvyr, nazevDruhu, nazevVyr, cenaVyr;
+        IF konec THEN LEAVE QQQ; end if;
+        SET slevaVyr = ROUND(cenaVyr/100*procento,2);
+        INSERT INTO Zlevnene_vyrobky VALUES(idvyr, nazevVyr, nazevDruhu, cenaVyr, slevaVyr, cenaVyr-slevaVyr);
+    END LOOP QQQ;
+    
+	CLOSE cur_sleva;
+end//
+DELIMITER ;
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+DELIMITER //
+CREATE or REPLACE PROCEDURE SlevaPevnaFor( in procento int)
+BEGIN 
+-- >w<
+ 
+    DECLARE slevaVyr decimal(6,2);
+	DECLARE cur_sleva CURSOR FOR SELECT v.id_vyr as idvyr, v.nazev as nazevVyr, d.nazev as nazevDru, v.cena as cenaVyr
+    		FROM vyrobky as v join druhy_vyrobku as d using(id_dru);
+
+    CREATE OR REPLACE TABLE Zlevnene_vyrobky(
+        id_vyr int PRIMARY KEY,
+        nazev_vyr char(50),
+        nazev_dru char(15),
+        cena_pred Decimal(6,2),
+        sleva decimal(6,2),
+        cena_po decimal(6,2)
+    );
+	FOR pom IN cur_sleva
+    DO
+    	SET slevavyr = ROUND(pom.cenavyr/100*procento,2);
+        INSERT INTO Zlevnene_vyrobky VALUES(pom.idvyr, pom.nazevVyr, pom.nazevDru, pom.cenaVyr, slevaVyr, pom.cenaVyr-slevaVyr);
+     END FOR;
+end//
+DELIMITER ;
+
+----------------------------------------------------------------------------------------------
+
+
+DELIMITER //
+CREATE or REPLACE PROCEDURE SlevaRand()
+BEGIN
+-- >w<
+    DECLARE nazevvyr char(50);
+	DECLARE randnum tinyint;
+    DECLARE konec bool DEFAULT false;
+    DECLARE idvyr int;
+    DECLARE cenapuv, cenaslevy, cenanova Decimal(6,2);
+	DECLARE cur_sleva CURSOR( sleva tinyint) FOR 
+    	SELECT v.id_vyr, v.nazev, v.cena, ROUND(v.cena/100*sleva,2) as cenaslevy, Round(v.cena - v.cena/100*sleva,2)
+        FROM vyrobky as v;
+        DECLARE EXIT HANDLER FOR SQLSTATE '02000' SET konec = true;
+        CREATE OR REPLACE TABLE zlevnene_vyrobky2 (
+        	id int PRIMARY KEY,
+            nazev char(50),
+            cena_puvodni DECIMAL(6,2),
+            sleva DECIMAL(6,2),
+            cena_zlevnena decimal(6,2)
+        );
+       SET randnum = floor(rand()*100);
+    OPEN cur_sleva(randnum);
+    REPEAT
+    	FETCH cur_sleva INTO idvyr, nazevvyr, cenapuv, cenaslevy, cenanova;
+        INSERT INTO	zlevnene_vyrobky2 VALUES(idvyr, nazevvyr, cenapuv, cenaslevy, cenanova);
+    UNTIL (konec)
+    END REPEAT;
+    CLOSE cur_sleva;
+END//
+DELIMITER ;
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+DELIMITER //
+CREATE or REPLACE PROCEDURE SlevaRandSWhile()
+BEGIN
+-- >w<
+   DECLARE slevavproc int;
+   DECLARE konec bool DEFAULT false;
+   DECLARE idvyr int;
+   DECLARE cenapuv, cenaslevy, cenanova Decimal(6,2);
+   DECLARE nazevvyr char(50);
+   DECLARE cur CURSOR(sleva int) FOR 
+   SELECT v.id_vyr, v.nazev, v.cena, ROUND(v.cena/100*sleva,2) as cenaslevy, Round(v.cena - v.cena/100*sleva,2)
+   FROM vyrobky as v;
+   DECLARE EXIT HANDLER FOR SQLSTATE '02000' SET konec = true;
+   
+   
+   CREATE OR REPLACE TABLE SlevaRand(
+        	id_vyr int PRIMARY KEY,
+            nazev char(50),
+            procenta DECIMAL(6,2),
+            cena_puv DECIMAL(6,2),
+            sleva decimal(6,2),
+       		cena_nova decimal(6,2)
+        );
+ 
+   SET slevavproc = floor(rand()*6)*5+5; 
+  
+   OPEN cur(slevavproc);
+   While(!konec) Do
+	   	FETCH cur INTO idvyr, nazevvyr, cenapuv, cenaslevy, cenanova;
+        INSERT INTO	SlevaRand VALUES(idvyr, nazevvyr, slevavproc , cenapuv, cenaslevy, cenanova);
+
+	end while;
+    CLOSE cur;
+END//
+DELIMITER ;
+
+-------------------------------------
+
+
+
+DELIMITER //
+CREATE or REPLACE PROCEDURE SlevaRandSWhile()
+BEGIN
+-- >w<
+   DECLARE slevavproc int;
+   DECLARE konec bool DEFAULT false;
+   DECLARE idvyr int;
+   DECLARE cenapuv, cenaslevy, cenanova Decimal(6,2);
+   DECLARE nazevvyr char(50);
+   DECLARE cur CURSOR FOR 
+   SELECT v.id_vyr, v.nazev, v.cena, v.cena as cenaslevy, v.cena as cenanova
+   FROM vyrobky as v;
+   DECLARE EXIT HANDLER FOR SQLSTATE '02000' SET konec = true;
+   
+   
+   CREATE OR REPLACE TABLE SlevaRand(
+        	id_vyr int PRIMARY KEY,
+            nazev char(50),
+            procenta DECIMAL(6,2),
+            cena_puv DECIMAL(6,2),
+            sleva decimal(6,2),
+       		cena_nova decimal(6,2)
+        );
+ 
+   
+  
+   OPEN cur;
+   While(!konec) Do
+   SET slevavproc = floor(rand()*5)*5+5; 
+	   	FETCH cur INTO idvyr, nazevvyr, cenapuv, cenaslevy, cenanova;
+        INSERT INTO	SlevaRand VALUES(idvyr, nazevvyr, slevavproc , cenapuv, ROUND(cenaslevy/100*slevavproc,2), 
+	Round(cenanova - cenanova/100*slevavproc,2));
+
+	end while;
+    CLOSE cur;
+END//
+DELIMITER ;
